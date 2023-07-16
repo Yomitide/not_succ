@@ -1,7 +1,7 @@
-![Cover Photo](shell.jpeg)
 # Simple Shell
 
 The `Simple Shell` project is a group project to create a simple UNIX command line interpreter. It involves designing and implementing a basic shell that can execute commands entered by the user. The project focuses on understanding the working principles of a shell and implementing the core functionalities.
+![Cover Photo](shell.jpeg) 
 
 ## Features
 The `Simple Shell` supports the following features:
@@ -110,7 +110,7 @@ The Simple Shell also implements the following advanced features:
 - Ability to read commands from a file as a command line argument.
 
 ## Authors
-- [Ayomide Sufian](add your gitbub url)
+- [Ayomide Sufian](https://github.com/Yomitide)
 - [Ifeanyi Kalu](https://github.com/fazzy13)
 
 ©2023 ALX, All rights reserved.
