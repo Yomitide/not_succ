@@ -95,19 +95,19 @@ The Simple Shell also implements the following advanced features:
 - Handling of the command separator `;`to execute multiple commands sequentially.
 
 `&& and ||`
-Handling of the logical operators `&&` and `||` to execute commands conditionally based on the success or failure of previous commands.
+- Handling of the logical operators `&&` and `||` to execute commands conditionally based on the success or failure of previous commands.
 
 `alias`
-Implementation of the `alias` built-in command for defining and printing aliases for commands.
+- Implementation of the `alias` built-in command for defining and printing aliases for commands.
 
 `Variables`
-Handling of variables replacement, including the special variables `$?` and `$$`.
+- Handling of variables replacement, including the special variables `$?` and `$$`.
 
 `Comments`
-Handling of comments using `#`.
+- Handling of comments using `#`.
 
 `File as input`
-Ability to read commands from a file as a command line argument.
+- Ability to read commands from a file as a command line argument.
 
 ## Authors
 - [Ayomide Sufian](add your gitbub url)
