@@ -110,7 +110,7 @@ Handling of comments using `#`.
 Ability to read commands from a file as a command line argument.
 
 ## Authors
-* [Ayomide Sufian](add your gitbub url)
-* [Ifeanyi Kalu](htts://github.com/fazzy13)
+- [Ayomide Sufian](add your gitbub url)
+- [Ifeanyi Kalu](htts://github.com/fazzy13)
 
 ©2023 ALX, All rights reserved.
