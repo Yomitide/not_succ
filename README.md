@@ -3,7 +3,7 @@
 
 The `Simple Shell` project is a group project to create a simple UNIX command line interpreter. It involves designing and implementing a basic shell that can execute commands entered by the user. The project focuses on understanding the working principles of a shell and implementing the core functionalities.
 
-![Cover Photo](simple_shell/shell.jpeg)
+![Cover Photo](shell.jpeg)
 
 ## Features
 The `Simple Shell` supports the following features:
