@@ -1,5 +1,5 @@
 /**
- * main - Simple shell 0.1
+ * main - Simple shell 0.4
  *
  * Description: A basic UNIX command line interpreter.
  *
@@ -10,13 +10,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <string.h>
 
 #define BUFFER_SIZE 1024
+#define TOKEN_DELIM " \t\r\n\a"
 
 /* Function prototypes */
 void display_prompt(void);
 char *read_input(void);
-void execute_command(char *command);
+char **split_arguments(char *line);
+char *find_command_path(char *command);
+void execute_command(char **args);
+void print_environment(void);
 
 /**
  * main - Entry point of the shell.
@@ -25,21 +30,44 @@ void execute_command(char *command);
  */
 int main(void)
 {
-    char *command;
+    char *line;
+    char **args;
 
     while (1)
     {
         display_prompt();
-        command = read_input();
+        line = read_input();
 
-        if (command == NULL)
+        if (line == NULL)
         {
             printf("\n");
             break;
-    }
+        }
 
-        execute_command(command);
-        free(command);
+        args = split_arguments(line);
+        if (args == NULL)
+        {
+            free(line);
+            continue;
+        }
+
+        if (strcmp(args[0], "exit") == 0)
+        {
+            free(line);
+            free(args);
+            break;
+        }
+        else if (strcmp(args[0], "env") == 0)
+        {
+            print_environment();
+        }
+        else
+        {
+            execute_command(args);
+        }
+
+        free(line);
+        free(args);
     }
 
     return 0;
@@ -50,13 +78,13 @@ int main(void)
  */
 void display_prompt(void)
 {
-    printf("$ ");
+    printf(":) ");
 }
 
 /**
  * read_input - Reads the user input from stdin.
  *
- * Return: Pointer to the input command string, or NULL on EOF.
+ * Return: Pointer to the input line string, or NULL on EOF.
  */
 char *read_input(void)
 {
@@ -88,13 +116,102 @@ char *read_input(void)
 }
 
 /**
- * execute_command - Executes the given command.
+ * split_arguments - Splits the line into an array of arguments.
  *
- * @command: The command to execute.
+ * @line: The input line string.
+ *
+ * Return: Array of arguments, or NULL on failure.
  */
-void execute_command(char *command)
+char **split_arguments(char *line)
 {
-    if (access(command, X_OK) == 0)
+    int buffer_size = BUFFER_SIZE;
+    int position = 0;
+    char **arguments = malloc(buffer_size * sizeof(char *));
+    char *token;
+
+    if (!arguments)
+    {
+        perror("Error: malloc failed");
+        exit(EXIT_FAILURE);
+    }
+
+    token = strtok(line, TOKEN_DELIM);
+    while (token != NULL)
+    {
+        arguments[position] = token;
+        position++;
+
+        if (position >= buffer_size)
+        {
+            buffer_size += BUFFER_SIZE;
+            arguments = realloc(arguments, buffer_size * sizeof(char *));
+            if (!arguments)
+            {
+                perror("Error: realloc failed");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        token = strtok(NULL, TOKEN_DELIM);
+    }
+    arguments[position] = NULL;
+
+    return arguments;
+}
+
+/**
+ * find_command_path - Finds the full path of the command.
+ *
+ * @command: The command.
+ *
+ * Return: Full path of the command, or NULL if not found.
+ */
+char *find_command_path(char *command)
+{
+    char *path = getenv("PATH");
+    char *dir;
+    char *path_copy = strdup(path);
+    char *token;
+
+    if (!path_copy)
+    {
+        perror("Error: strdup failed");
+        exit(EXIT_FAILURE);
+    }
+
+    token = strtok(path_copy, ":");
+    while (token != NULL)
+    {
+        dir = malloc(strlen(token) + strlen(command) + 2);
+        if (!dir)
+        {
+            perror("Error: malloc failed");
+            exit(EXIT_FAILURE);
+        }
+        sprintf(dir, "%s/%s", token, command);
+        if (access(dir, X_OK) == 0)
+        {
+            free(path_copy);
+            return dir;
+        }
+        free(dir);
+        token = strtok(NULL, ":");
+    }
+
+    free(path_copy);
+    return NULL;
+}
+
+/**
+ * execute_command - Executes the given command with arguments.
+ *
+ * @args: Array of command and arguments.
+ */
+void execute_command(char **args)
+{
+    char *command_path = find_command_path(args[0]);
+
+    if (command_path != NULL)
     {
         pid_t pid = fork();
 
@@ -106,10 +223,7 @@ void execute_command(char *command)
 
         if (pid == 0)
         {
-            char *args[2];
-            args[0] = command;
-            args[1] = NULL;
-            if (execve(command, args, NULL) == -1)
+            if (execve(command_path, args, NULL) == -1)
             {
                 perror("Error: execve failed");
                 exit(EXIT_FAILURE);
@@ -119,9 +233,27 @@ void execute_command(char *command)
         {
             wait(NULL);
         }
+
+        free(command_path);
     }
     else
     {
-        printf("%s: command not found\n", command);
+        printf("%s: command not found\n", args[0]);
     }
 }
+
+/**
+ * print_environment - Prints the current environment variables.
+ */
+void print_environment(void)
+{
+    extern char **environ;
+
+    int i = 0;
+    while (environ[i] != NULL)
+    {
+        printf("%s\n", environ[i]);
+        i++;
+    }
+}
+
